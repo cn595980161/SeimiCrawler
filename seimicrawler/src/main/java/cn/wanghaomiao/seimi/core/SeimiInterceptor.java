@@ -15,6 +15,7 @@
  */
 package cn.wanghaomiao.seimi.core;
 
+import cn.wanghaomiao.seimi.struct.Request;
 import cn.wanghaomiao.seimi.struct.Response;
 
 import java.lang.annotation.Annotation;
@@ -40,6 +41,20 @@ public interface SeimiInterceptor {
      * @return 权重, 权重越大越在外层，优先拦截
      */
     public int getWeight();
+
+    /**
+     * 可以在目标方法执行之前定义一些处理逻辑
+     * @param method 当前拦截器生效的方法
+     * @param request 拦截到的参数
+     */
+    public void before(Method method, Request request);
+
+    /**
+     * 可以在目标方法执行之后定义一些处理逻辑
+     * @param method 当前拦截器生效的方法
+     * @param request 拦截到的参数
+     */
+    public void after(Method method, Request request);
 
     /**
      * 可以在目标方法执行之前定义一些处理逻辑

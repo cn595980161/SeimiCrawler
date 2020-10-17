@@ -98,7 +98,23 @@ public class SeimiProcessor implements Runnable {
                     downloader = new OkHttpDownloader(crawlerModel);
                 }
 
+                Method requestCallback = crawlerModel.getMemberMethods().get(request.getCallBack());
+                for (SeimiInterceptor interceptor : interceptors) {
+                    Interceptor interAnno = interceptor.getClass().getAnnotation(Interceptor.class);
+                    if (interAnno.everyMethod() || requestCallback.isAnnotationPresent(interceptor.getTargetAnnotationClass()) || crawlerModel.getClazz().isAnnotationPresent(interceptor.getTargetAnnotationClass())) {
+                        interceptor.before(requestCallback, request);
+                    }
+                }
+
                 Response seimiResponse = downloader.process(request);
+
+                for (SeimiInterceptor interceptor : interceptors) {
+                    Interceptor interAnno = interceptor.getClass().getAnnotation(Interceptor.class);
+                    if (interAnno.everyMethod() || requestCallback.isAnnotationPresent(interceptor.getTargetAnnotationClass()) || crawlerModel.getClazz().isAnnotationPresent(interceptor.getTargetAnnotationClass())) {
+                        interceptor.after(requestCallback, request);
+                    }
+                }
+
                 if (StringUtils.isNotBlank(seimiResponse.getContent()) && BodyType.TEXT.equals(seimiResponse.getBodyType())) {
                     Matcher mm = metaRefresh.matcher(seimiResponse.getContent());
                     int refreshCount = 0;
